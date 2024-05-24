@@ -2,11 +2,13 @@ const mongoose = require("mongoose");
 
 const seatSchema = new mongoose.Schema(
   {
-    user_seat: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "User",
-    },
+    user_seat: [
+      {
+        type: Object,
+        required: true,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,
