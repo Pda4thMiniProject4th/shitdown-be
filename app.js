@@ -8,17 +8,19 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
+var usersRouter = require("./routes/api/users");
+var seatsRouter = require("./routes/api/seats");
 
 dotenv.config();
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("Connected Successful"))
-  .catch((err) => console.log(err));
-
-require("./models/Notices");
-
+  .then(() => {
+    console.log("Connected Successful");
+  })
+  .catch((error) => {
+    console.error("MongoDB 연결 중 오류 발생:", error);
+  });
 var app = express();
 
 // view engine setup
@@ -33,6 +35,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/seats", seatsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
