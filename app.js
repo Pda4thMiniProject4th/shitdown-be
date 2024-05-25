@@ -10,9 +10,9 @@ const mongoose = require("mongoose");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/api/users");
 var seatsRouter = require("./routes/api/seats");
+var noticeRouter = require("./routes/api/notice");
 
 dotenv.config();
-
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
@@ -36,6 +36,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/seats", seatsRouter);
+app.use("/notice", noticeRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
