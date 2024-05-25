@@ -1,6 +1,7 @@
 var express = require("express");
 const Seat = require("../../models/Seats");
 const User = require("../../models/Users");
+const { randomSeatService } = require("../../services/seats");
 
 const router = express.Router();
 
@@ -13,10 +14,57 @@ router.post("/", async (req, res, next) => {
     });
 
     Seat.create(tmp);
-    res.status(201).json("1");
+    res.status(201).json("ok");
   } catch (error) {
     res.status(400).json({ error: error.message });
     next(error);
+  }
+});
+
+/**
+ * 자리 결정 API
+ * @method POST
+ *
+ * @default ~/seats/start
+ *
+ * @param {
+ * requestBody: {
+ *  {
+ *  orders: Number, (ex. 3)
+ *  prohibit_seat: Number[], (ex. [1,2,3])
+ *  max_seat : Number, (ex. 43)
+ * }
+ * }
+ * }
+ *
+ * @returns {
+ * success: {
+ *  status: "success",
+ *  message: "",
+ * } ||
+ * fail: {
+ *  status: "fail",
+ *  message: error.message,
+ * }
+ * }
+ */
+router.post("/start", async (req, res, next) => {
+  const orders = req.body.orders;
+  try {
+    res.status(200).json({
+      status: "succuess",
+      message: "ok",
+      body: await randomSeatService(
+        req.body.orders,
+        req.body.max_seat,
+        req.body.prohibit_seat
+      ),
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error.message,
+    });
   }
 });
 
