@@ -9,6 +9,10 @@ const seatSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    orders: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,

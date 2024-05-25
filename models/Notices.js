@@ -6,6 +6,10 @@ const noticeSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    orders: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,
