@@ -50,4 +50,19 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+//notice에서 rearrange_at 필드 값 추출해서 메인페이지에 공지
+router.get("/mainpage/:orders", async (req, res) => {
+  const ordersValue = req.params.orders;
+  try {
+    const rearrange_at = await Notice.findOne(
+      { orders: ordersValue },
+      "rearrange_at -_id"
+    );
+    res.json(rearrange_at);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching rearrange_at");
+  }
+});
+
 module.exports = router;
