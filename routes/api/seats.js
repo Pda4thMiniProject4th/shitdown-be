@@ -118,4 +118,43 @@ router.get("/current/:orders", async (req, res) => {
   }
 });
 
+router.post("/live", async (req, res) => {
+  const { id, seat_option, reason } = req.body;
+
+  try {
+    // 사용자 ID로 사용자 찾기 (사용자 정의 'id' 필드 사용)
+    const user = await User.findOne({ id: id });
+    if (!user) {
+      return res.status(400).send("User not found");
+    }
+
+    // seat_option 유효성 검증
+    if (![0, 1, -1].includes(seat_option)) {
+      return res.status(400).send("Invalid seat option");
+    }
+
+    // 뒷자리 선택 시 사유 필수 검증
+    if (seat_option === -1 && (!reason || reason.trim() === "")) {
+      return res
+        .status(400)
+        .send("Reason is required when selecting the back seat");
+    }
+
+    // 데이터베이스 업데이트
+    user.seat_option = seat_option;
+    if (seat_option === -1) {
+      user.reason = reason;
+    } else {
+      // seat_option이 0 또는 1인 경우, reason을 null로 설정
+      user.reason = null;
+    }
+
+    await user.save();
+
+    res.status(200).json({ message: "Seat option updated successfully", user });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 module.exports = router;

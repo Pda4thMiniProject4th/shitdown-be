@@ -13,6 +13,7 @@ var seatsRouter = require("./routes/api/seats");
 var noticeRouter = require("./routes/api/notice");
 
 dotenv.config();
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
