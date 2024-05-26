@@ -30,6 +30,9 @@ const userSchema = new mongoose.Schema(
     seat_option: {
       type: Number, // 숫자 타입
     },
+    reason: {
+      type: String, //문자열(뒷자리 선택 사유)
+    },
     is_admin: {
       type: Boolean, // 불리언 타입
       default: false, // 기본 값 설정
