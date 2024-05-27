@@ -78,7 +78,7 @@ router.post("/start", async (req, res, next) => {
 
 // '/seats'라는 GET 엔드포인트를 정의하며 HTTP GET 요청을 처리합니다
 
-// 'orders'를 매개변수로 받는 API로 업데이트
+// 'orders'를 매개변수로 받고 가장 최근에 업데이트된 좌석을 찾는 API로 업데이트
 router.get("/current/:orders", async (req, res) => {
   try {
     const { orders } = req.params;
@@ -90,10 +90,9 @@ router.get("/current/:orders", async (req, res) => {
         .send("Invalid 'orders' parameter. It must be a number.");
     }
 
-    // 주어진 'orders'와 일치하며 가장 최근에 업데이트된 좌석을 찾습니다.
     const seat = await Seat.findOne({ orders: ordersNumber }).sort({
       updatedAt: -1,
-    }); // 최근 업데이트 순으로 정렬
+    });
 
     if (!seat) {
       return res.status(404).send("No seats found for the specified orders.");
@@ -118,34 +117,30 @@ router.get("/current/:orders", async (req, res) => {
   }
 });
 
+// 유저ID로 사용자 찾고 seat_option 유효성 검증 후 뒷자리 선택시 사유 필수 검증 후 db에 반영하는 api
 router.post("/live", async (req, res) => {
   const { id, seat_option, reason } = req.body;
 
   try {
-    // 사용자 ID로 사용자 찾기 (사용자 정의 'id' 필드 사용)
     const user = await User.findOne({ id: id });
     if (!user) {
       return res.status(400).send("User not found");
     }
 
-    // seat_option 유효성 검증
     if (![0, 1, -1].includes(seat_option)) {
       return res.status(400).send("Invalid seat option");
     }
 
-    // 뒷자리 선택 시 사유 필수 검증
     if (seat_option === -1 && (!reason || reason.trim() === "")) {
       return res
         .status(400)
         .send("Reason is required when selecting the back seat");
     }
 
-    // 데이터베이스 업데이트
     user.seat_option = seat_option;
     if (seat_option === -1) {
       user.reason = reason;
     } else {
-      // seat_option이 0 또는 1인 경우, reason을 null로 설정
       user.reason = null;
     }
 

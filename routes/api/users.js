@@ -16,12 +16,13 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+// GET 요청으로 User 모델의 모든 사용자 조회
 router.get("/", async (req, res) => {
   try {
-    const users = await User.find(); // User 모델을 사용하여 모든 사용자 조회
-    res.status(200).json(users); // 조회된 사용자 정보를 JSON 형식으로 응답
+    const users = await User.find();
+    res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: error.message }); // 오류 발생 시 500 상태 코드로 응답
+    res.status(500).json({ error: error.message });
   }
 });
 
