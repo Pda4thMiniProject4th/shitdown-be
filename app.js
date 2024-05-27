@@ -3,6 +3,10 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const cors = require("cors"); // CORS 모듈 추가
+
+//파싱을 위한 추가
+const bodyParser = require("body-parser");
 
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
@@ -12,6 +16,9 @@ var usersRouter = require("./routes/api/users");
 var seatsRouter = require("./routes/api/seats");
 var noticeRouter = require("./routes/api/notice");
 var mypageRouter = require("./routes/api/mypage");
+//인증
+var authRouter = require("./routes/auth");
+
 dotenv.config();
 
 mongoose
@@ -23,6 +30,7 @@ mongoose
     console.error("MongoDB 연결 중 오류 발생:", error);
   });
 var app = express();
+app.use(cors()); // CORS 설정 추가
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -32,6 +40,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
@@ -39,11 +48,14 @@ app.use("/users", usersRouter);
 app.use("/seats", seatsRouter);
 app.use("/notice", noticeRouter);
 app.use("/mypage", mypageRouter);
+app.use("/auth", authRouter);
+
 // catch 404 and forward to error handler
+/*
 app.use(function (req, res, next) {
   next(createError(404));
 });
-
+*/
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
