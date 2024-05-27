@@ -95,25 +95,30 @@ router.get("/current/:orders", async (req, res) => {
     });
 
     if (!seat) {
-      return res.status(404).send("No seats found for the specified orders.");
+      return res.status(400).send("No seats found for the specified orders.");
     }
 
-    const userNames = [];
+    const seatToUserName = {};
+
     for (let userSeat of seat.user_seat) {
       const userId = userSeat.userId;
       const user = await User.findOne({ id: userId });
 
       if (user) {
-        userNames.push(user.name);
+        seatToUserName[userSeat.seatNumber] = user.name;
+      } else {
+        seatToUserName[userSeat.seatNumber] = "Empty";
       }
     }
 
-    res.json(userNames);
+    res.json(seatToUserName);
   } catch (error) {
     console.error(error);
     res
-      .status(500)
-      .send("An error occurred while fetching user names based on orders.");
+      .status(400)
+      .send(
+        "An error occurred while fetching user names based on seat numbers."
+      );
   }
 });
 
@@ -131,7 +136,7 @@ router.post("/live", async (req, res) => {
       return res.status(400).send("Invalid seat option");
     }
 
-    if (seat_option === -1 && (!reason || reason.trim() === "")) {
+    if (seat_option === -2 && (!reason || reason.trim() === "")) {
       return res
         .status(400)
         .send("Reason is required when selecting the back seat");
