@@ -127,7 +127,7 @@ router.post("/live", async (req, res) => {
       return res.status(400).send("User not found");
     }
 
-    if (![0, 1, -1].includes(seat_option)) {
+    if (![0, 1, -1, -2].includes(seat_option)) {
       return res.status(400).send("Invalid seat option");
     }
 
@@ -138,7 +138,7 @@ router.post("/live", async (req, res) => {
     }
 
     user.seat_option = seat_option;
-    if (seat_option === -1) {
+    if (seat_option === -2) {
       user.reason = reason;
     } else {
       user.reason = null;
