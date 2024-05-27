@@ -105,9 +105,9 @@ router.get("/current/:orders", async (req, res) => {
       const user = await User.findOne({ id: userId });
 
       if (user) {
-        seatToUserName[userSeat.seatNumber - 1] = user.name;
+        seatToUserName[userSeat.seatNumber] = user.name;
       } else {
-        seatToUserName[userSeat.seatNumber - 1] = "Empty";
+        seatToUserName[userSeat.seatNumber] = "Empty";
       }
     }
 
