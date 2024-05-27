@@ -26,4 +26,26 @@ router.get("/", async (req, res) => {
   }
 });
 
+// orders 를 기준으로 user들 조회하고 seat_option(-1,1)의 값에 따른 갯수 get
+
+router.get("/:orders", async (req, res) => {
+  try {
+    const ordersValue = req.params.orders;
+    const users = await User.find({ orders: ordersValue });
+
+    let front = 0;
+    let back = 0;
+
+    for (let user of users) {
+      if (user.seat_option === 1) front = front + 1;
+      else if (user.seat_option === -1) back = back + 1;
+    }
+
+    res.json({ frontCount: front, backCount: back });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching sum seat_option");
+  }
+});
+
 module.exports = router;

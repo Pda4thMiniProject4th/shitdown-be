@@ -53,7 +53,7 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
       frontPeople = [...frontPeople, user.id];
       return;
     }
-    if (user.seat_option < 0) {
+    if (user.seat_option == -1) {
       backPeople = [...backPeople, user.id];
       return;
     }
