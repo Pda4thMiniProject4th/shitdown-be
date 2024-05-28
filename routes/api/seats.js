@@ -116,6 +116,44 @@ router.get("/current/:orders", async (req, res) => {
   }
 });
 
+// 좌석 매핑 위한 api
+router.get("/:orders", async (req, res) => {
+  try {
+    const { orders } = req.params;
+    const ordersNumber = parseInt(orders);
+
+    if (isNaN(ordersNumber)) {
+      return res
+        .status(400)
+        .send("Invalid 'orders' parameter. It must be a number.");
+    }
+
+    const seat = await Seat.findOne({ orders: ordersNumber }).sort({
+      updatedAt: -1,
+    });
+
+    if (!seat) {
+      return res.status(404).send("No seats found for the specified orders.");
+    }
+
+    const seatToUserId = {};
+    for (let userSeat of seat.user_seat) {
+      if (userSeat.userId) {
+        seatToUserId[userSeat.seatNumber] = userSeat.userId;
+      } else {
+        seatToUserId[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
+      }
+    }
+
+    res.json(seatToUserId);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send("An error occurred while fetching user names based on orders.");
+  }
+});
+
 // 유저ID로 사용자 찾고 seat_option 유효성 검증 후 뒷자리 선택시 사유 필수 검증 후 db에 반영하는 api
 router.post("/live", async (req, res) => {
   const { id, seat_option, reason } = req.body;
