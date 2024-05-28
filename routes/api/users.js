@@ -26,14 +26,53 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/check", (req, res) => {
-  console.log("into check server");
+//이름과 기수가 일치하는 유저의 정보 업데이트
+router.post("/check", async (req, res) => {
   const { data } = req.body;
   const name = data[0];
   const order = data[1];
-  res.json("ok");
-  console.log(name);
-  console.log(order);
+  const token = req.session.token;
+
+  //사용자가 존재하면 true로 반환한 후 jwt 토큰 발급 api로
+  //존재하지 않으면 false를 반환한 후 로그아웃 페이지로
+  let result = false;
+
+  //이름과 기수가 일치하는 user 찾기
+  const person = await User.findOne({ name: name, orders: order });
+
+  //일치하는 사람이 있다면
+  if (person) {
+    result = true;
+    //유저 정보 가져오기
+    const userResponse = await axios.get("https://kapi.kakao.com/v2/user/me", {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+
+    const userInfo = userResponse.data;
+
+    User.name = name;
+    User.nickname = userInfo.properties.nickname;
+    User.id = userInfo.id;
+    User.profile = userInfo.properties.profile_image;
+    User.token = token;
+    //User.access_token = object로 저장해야 하는지 논의 필요
+    //User.refresh_token =
+
+    res.json;
+  } else {
+    console.log("매칭되는 유저가 없음");
+  }
+
+  //세션 삭제
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("세션 삭제 불가: ", err);
+    }
+  });
+
+  res.json(result);
 });
 
 // orders 를 기준으로 user들 조회하고 seat_option(-1,1)의 값에 따른 갯수 get

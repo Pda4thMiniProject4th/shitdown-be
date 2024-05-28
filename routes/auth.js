@@ -35,6 +35,8 @@ router.post("/kakao/callback", async (req, res) => {
 
     //토큰을 받아옴.
     const { access_token } = tokenResponse.data;
+    //const { refresh_token } = tokenResponse.data;
+    const { data } = tokenResponse;
 
     //유저 정보 요청
     const userResponse = await axios.get("https://kapi.kakao.com/v2/user/me", {
@@ -48,8 +50,8 @@ router.post("/kakao/callback", async (req, res) => {
 
     //세션에 데이터 저장
     req.session.kakao = {
-      nickname: userResponse.data.properties.nickname,
-      token: access_token,
+      //nickname: userResponse.data.properties.nickname,
+      token: data,
     };
 
     res.json({ nickname });
