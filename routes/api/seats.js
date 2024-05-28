@@ -49,18 +49,20 @@ router.post("/", async (req, res, next) => {
  * }
  */
 router.post("/start", async (req, res, next) => {
+  console.log(req.body);
   const orders = req.body.orders;
   try {
     res.status(200).json({
       status: "succuess",
       message: "ok",
       body: await randomSeatService(
-        req.body.orders,
+        orders,
         req.body.max_seat,
         req.body.prohibit_seat
       ),
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       status: "fail",
       message: error.message,
