@@ -5,14 +5,9 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 //Users에 닉네임과 id, 프로필 저장을 위한 추가
 const User = require("../models/Users");
-
 const qs = require("qs");
+const { json } = require("body-parser");
 
-/*
-router.get("/", (req, res) => {
-  res.send("Auth route works!");
-});
-*/
 router.post("/kakao/callback", async (req, res) => {
   //클라이언트로 부터 전달 받은 인가 코드
   const { code } = req.body;
@@ -21,39 +16,49 @@ router.post("/kakao/callback", async (req, res) => {
 
   //토큰 발급 신청
   try {
-    const tokenResponse = await axios({
-      method: "POST",
-      url: "https://kauth.kakao.com/oauth/token",
-      data: qs.stringify({
-        grant_type: "authorization_code",
-        client_id: process.env.KAKAO_CLIENT_ID,
-        redirect_uri: process.env.KAKAO_REDIRECT_URI,
-        code,
-        client_secret: process.env.KAKAO_SECRET,
-      }),
-      headers: {
-        "content-type": "application/x-www-form-urlencoded;charset=utf-8",
-      },
-    });
+    const tokenResponse = await axios.post(
+      "https://kauth.kakao.com/oauth/token",
+      null,
+      {
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+        },
+        params: {
+          grant_type: "authorization_code",
+          client_id: process.env.KAKAO_CLIENT_ID,
+          client_secret: process.env.KAKAO_SECRET,
+          redirect_uri: process.env.KAKAO_REDIRECT_URI,
+          code: code,
+        },
+      }
+    );
+
     //토큰을 받아옴.
-    const { access_token, refresh_token } = tokenResponse.data;
+    const { access_token } = tokenResponse.data;
+    //const { refresh_token } = tokenResponse.data;
+    const { data } = tokenResponse;
 
     //유저 정보 요청
-    /*
     const userResponse = await axios.get("https://kapi.kakao.com/v2/user/me", {
       headers: {
         Authorization: `Bearer ${access_token}`,
       },
     });
-*/
-    const token = "성공";
-    res.json({ token });
+
+    //사용자의 닉넴
+    const nickname = userResponse.data.properties.nickname;
+
+    //세션에 데이터 저장
+    req.session.kakao = {
+      //nickname: userResponse.data.properties.nickname,
+      token: data,
+    };
+
+    res.json({ nickname });
   } catch (error) {
-    console.log(
-      "Error fetching token: ",
-      error.response?.data || error.message
-    );
-    res.status(500).json({ message: "Authenticaiton failed", error });
+    // console.log("Error", error.response?.data || error.message);
+    console.log(error);
+    res.status(400).json({ message: "Authenticaiton failed", error });
   }
 });
 

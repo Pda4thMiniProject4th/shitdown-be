@@ -4,6 +4,9 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const cors = require("cors"); // CORS 모듈 추가
+const session = require("express-session"); //세션 사용
+const { v4: uuidv4 } = require("uuid"); //uuid 사용
+const MemoryStore = require("memorystore")(session); //메모리스토리지
 
 //파싱을 위한 추가
 const bodyParser = require("body-parser");
@@ -40,7 +43,22 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
+
+//세션 설정
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+    store: new MemoryStore({ checkPeriod: 1000 * 60 * 10 }),
+    cookie: {
+      httpOnly: false,
+      secure: false,
+      maxAge: 1000 * 60 * 10,
+    },
+  })
+);
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);

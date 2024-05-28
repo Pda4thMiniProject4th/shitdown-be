@@ -40,11 +40,8 @@ const userSchema = new mongoose.Schema(
     orders: {
       type: Number, // 숫자 타입
     },
-    access_token: {
-      type: String,
-    },
-    refresh_token: {
-      type: String,
+    token: {
+      type: Object, //token data 전체 저장
     },
   },
   {
