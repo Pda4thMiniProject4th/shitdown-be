@@ -8,15 +8,6 @@ const User = require("../models/Users");
 const qs = require("qs");
 const { json } = require("body-parser");
 
-// router.get("/sample", async (req, res) => {
-//   if (!req.session.sample) {
-//     req.session.sample = [];
-//   }
-//   req.session.sample.push("data");
-//   console.log(req.session.sample);
-//   return res.json({});
-// });
-
 router.post("/kakao/callback", async (req, res) => {
   //클라이언트로 부터 전달 받은 인가 코드
   const { code } = req.body;

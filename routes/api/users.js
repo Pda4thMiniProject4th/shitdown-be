@@ -26,4 +26,14 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.post("/check", (req, res) => {
+  console.log("into check server");
+  const { data } = req.body;
+  const name = data[0];
+  const order = data[1];
+  res.json("ok");
+  console.log(name);
+  console.log(order);
+});
+
 module.exports = router;
