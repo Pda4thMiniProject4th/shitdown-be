@@ -78,7 +78,7 @@ router.post("/start", async (req, res, next) => {
 
 // '/seats'라는 GET 엔드포인트를 정의하며 HTTP GET 요청을 처리합니다
 
-// 'orders'를 매개변수로 받고 가장 최근에 업데이트된 좌석을 찾는 API로 업데이트
+// 'orders'를 매개변수로 받고 가장 최근에 업데이트된 좌석을 찾는 API로 업데이트(seat스키마 변경 완료)
 router.get("/current/:orders", async (req, res) => {
   try {
     const { orders } = req.params;
@@ -98,17 +98,16 @@ router.get("/current/:orders", async (req, res) => {
       return res.status(404).send("No seats found for the specified orders.");
     }
 
-    const userNames = [];
+    const seatToUserName = {};
     for (let userSeat of seat.user_seat) {
-      const userId = userSeat.userId;
-      const user = await User.findOne({ id: userId });
-
-      if (user) {
-        userNames.push(user.name);
+      if (userSeat.userName) {
+        seatToUserName[userSeat.seatNumber] = userSeat.userName;
+      } else {
+        seatToUserName[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
       }
     }
 
-    res.json(userNames);
+    res.json(seatToUserName);
   } catch (error) {
     console.error(error);
     res
