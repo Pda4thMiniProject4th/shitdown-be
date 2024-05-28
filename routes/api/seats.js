@@ -141,23 +141,29 @@ router.get("/:orders", async (req, res) => {
     const seatToUserId = {};
     for (let userSeat of seat.user_seat) {
       if (userSeat.userId) {
-        seatToUserId[userSeat.seatNumber] = userSeat.userId;
+        seatToUserId[userSeat.userId] = userSeat.seatNumber;
       } else {
-        seatToUserId[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
+        // seatToUserId[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
       }
     }
-
     res.json(seatToUserId);
-      if (user) {
-        seatToUserName[userSeat.seatNumber] = user.name;
-      } else {
-        seatToUserName[userSeat.seatNumber] = "Empty";
-      }
-    }
+  } catch (err) {
+    //   res.json(seatToUserId);
+    //   if (user) {
+    //     seatToUserName[userSeat.seatNumber] = user.name;
+    //   } else {
+    //     seatToUserName[userSeat.seatNumber] = "Empty";
+    //   }
+    //   res.json(seatToUserName);
+    // } catch (error) {
+    //   console.error(error);
+    //   res
+    //     .status(400)
+    //     .send(
+    //       "An error occurred while fetching user names based on seat numbers."
+    //     );
+    // }
 
-    res.json(seatToUserName);
-  } catch (error) {
-    console.error(error);
     res
       .status(400)
       .send(
