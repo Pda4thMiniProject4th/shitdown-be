@@ -80,7 +80,7 @@ router.post("/start", async (req, res, next) => {
 
 // '/seats'라는 GET 엔드포인트를 정의하며 HTTP GET 요청을 처리합니다
 
-// 'orders'를 매개변수로 받고 가장 최근에 업데이트된 좌석을 찾는 API로 업데이트
+// 'orders'를 매개변수로 받고 가장 최근에 업데이트된 좌석을 찾는 API로 업데이트(seat스키마 변경 완료)
 router.get("/current/:orders", async (req, res) => {
   try {
     const { orders } = req.params;
@@ -101,11 +101,53 @@ router.get("/current/:orders", async (req, res) => {
     }
 
     const seatToUserName = {};
-
     for (let userSeat of seat.user_seat) {
-      const userId = userSeat.userId;
-      const user = await User.findOne({ id: userId });
+      if (userSeat.userName) {
+        seatToUserName[userSeat.seatNumber] = userSeat.userName;
+      } else {
+        seatToUserName[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
+      }
+    }
 
+    res.json(seatToUserName);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send("An error occurred while fetching user names based on orders.");
+  }
+});
+
+// 좌석 매핑 위한 api
+router.get("/:orders", async (req, res) => {
+  try {
+    const { orders } = req.params;
+    const ordersNumber = parseInt(orders);
+
+    if (isNaN(ordersNumber)) {
+      return res
+        .status(400)
+        .send("Invalid 'orders' parameter. It must be a number.");
+    }
+
+    const seat = await Seat.findOne({ orders: ordersNumber }).sort({
+      updatedAt: -1,
+    });
+
+    if (!seat) {
+      return res.status(404).send("No seats found for the specified orders.");
+    }
+
+    const seatToUserId = {};
+    for (let userSeat of seat.user_seat) {
+      if (userSeat.userId) {
+        seatToUserId[userSeat.seatNumber] = userSeat.userId;
+      } else {
+        seatToUserId[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
+      }
+    }
+
+    res.json(seatToUserId);
       if (user) {
         seatToUserName[userSeat.seatNumber] = user.name;
       } else {
