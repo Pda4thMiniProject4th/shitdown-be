@@ -49,18 +49,20 @@ router.post("/", async (req, res, next) => {
  * }
  */
 router.post("/start", async (req, res, next) => {
+  console.log(req.body);
   const orders = req.body.orders;
   try {
     res.status(200).json({
       status: "succuess",
       message: "ok",
       body: await randomSeatService(
-        req.body.orders,
+        orders,
         req.body.max_seat,
         req.body.prohibit_seat
       ),
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       status: "fail",
       message: error.message,
@@ -78,8 +80,46 @@ router.post("/start", async (req, res, next) => {
 
 // '/seats'라는 GET 엔드포인트를 정의하며 HTTP GET 요청을 처리합니다
 
-// 'orders'를 매개변수로 받고 가장 최근에 업데이트된 좌석을 찾는 API로 업데이트
+// 'orders'를 매개변수로 받고 가장 최근에 업데이트된 좌석을 찾는 API로 업데이트(seat스키마 변경 완료)
 router.get("/current/:orders", async (req, res) => {
+  try {
+    const { orders } = req.params;
+    const ordersNumber = parseInt(orders);
+
+    if (isNaN(ordersNumber)) {
+      return res
+        .status(400)
+        .send("Invalid 'orders' parameter. It must be a number.");
+    }
+
+    const seat = await Seat.findOne({ orders: ordersNumber }).sort({
+      updatedAt: -1,
+    });
+
+    if (!seat) {
+      return res.status(400).send("No seats found for the specified orders.");
+    }
+
+    const seatToUserName = {};
+    for (let userSeat of seat.user_seat) {
+      if (userSeat.userName) {
+        seatToUserName[userSeat.seatNumber] = userSeat.userName;
+      } else {
+        seatToUserName[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
+      }
+    }
+
+    res.json(seatToUserName);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send("An error occurred while fetching user names based on orders.");
+  }
+});
+
+// 좌석 매핑 위한 api
+router.get("/:orders", async (req, res) => {
   try {
     const { orders } = req.params;
     const ordersNumber = parseInt(orders);
@@ -98,22 +138,37 @@ router.get("/current/:orders", async (req, res) => {
       return res.status(404).send("No seats found for the specified orders.");
     }
 
-    const userNames = [];
+    const seatToUserId = {};
     for (let userSeat of seat.user_seat) {
-      const userId = userSeat.userId;
-      const user = await User.findOne({ id: userId });
-
-      if (user) {
-        userNames.push(user.name);
+      if (userSeat.userId) {
+        seatToUserId[userSeat.userId] = userSeat.seatNumber;
+      } else {
+        // seatToUserId[userSeat.seatNumber] = "Empty"; // 좌석에 사용자 이름이 없는 경우
       }
     }
+    res.json(seatToUserId);
+  } catch (err) {
+    //   res.json(seatToUserId);
+    //   if (user) {
+    //     seatToUserName[userSeat.seatNumber] = user.name;
+    //   } else {
+    //     seatToUserName[userSeat.seatNumber] = "Empty";
+    //   }
+    //   res.json(seatToUserName);
+    // } catch (error) {
+    //   console.error(error);
+    //   res
+    //     .status(400)
+    //     .send(
+    //       "An error occurred while fetching user names based on seat numbers."
+    //     );
+    // }
 
-    res.json(userNames);
-  } catch (error) {
-    console.error(error);
     res
-      .status(500)
-      .send("An error occurred while fetching user names based on orders.");
+      .status(400)
+      .send(
+        "An error occurred while fetching user names based on seat numbers."
+      );
   }
 });
 
@@ -127,18 +182,18 @@ router.post("/live", async (req, res) => {
       return res.status(400).send("User not found");
     }
 
-    if (![0, 1, -1].includes(seat_option)) {
+    if (![0, 1, -1, -2].includes(seat_option)) {
       return res.status(400).send("Invalid seat option");
     }
 
-    if (seat_option === -1 && (!reason || reason.trim() === "")) {
+    if (seat_option === -2 && (!reason || reason.trim() === "")) {
       return res
         .status(400)
         .send("Reason is required when selecting the back seat");
     }
 
     user.seat_option = seat_option;
-    if (seat_option === -1) {
+    if (seat_option === -2) {
       user.reason = reason;
     } else {
       user.reason = null;

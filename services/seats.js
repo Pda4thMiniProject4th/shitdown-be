@@ -35,62 +35,69 @@ async function randomSeatService(orders, maxSeat, prohibitSeat) {
  */
 
 function setRandomSeats(maxSeat, prohibitSeat, users) {
-  if (!validAllUserCanSeat(users, maxSeat))
+  if (!validAllUserCanSeat(users, maxSeat, prohibitSeat.length)) {
     throw new Error("All User Can't Seats, Please Upgrade Seats");
+  }
+
+  console.log(users.length);
   let frontPeople = [];
   let backPeople = [];
   let randomPeople = [];
   let arrangedSeat = [];
   //유저 수보다 작거나 같은 자리가 금지되어 있다면 그 수만큼 users.length에 더해주기
   let userLength = users.length;
-  let prohibitFrontSeatLength = prohibitSeat.filter(
-    (seat) => userLength >= seat
-  ).length;
-  maxSeat = userLength + prohibitFrontSeatLength;
 
   users.map((user) => {
     if (user.seat_option > 0) {
-      frontPeople = [...frontPeople, user.id];
+      frontPeople = [...frontPeople, user];
       return;
     }
-    if (user.seat_option < 0) {
-      backPeople = [...backPeople, user.id];
+    if (user.seat_option == -1) {
+      backPeople = [...backPeople, user];
       return;
     }
-    randomPeople = [...randomPeople, user.id];
+    randomPeople = [...randomPeople, user];
   });
+  let prohibitFrontSeatLength = prohibitSeat.filter(
+    (seat) => frontPeople.length >= seat
+  ).length;
+  maxSeat = userLength + prohibitSeat.length;
 
-  frontPeople.map((id) => {
+  frontPeople.map((user) => {
     const seats = arrangeSeat(
       1,
       frontPeople.length + prohibitFrontSeatLength,
       arrangedSeat,
       prohibitSeat,
-      id
+      user.id,
+      user.name
     );
     prohibitSeat = seats.prohibitSeat;
     arrangedSeat = seats.arrangedSeat;
   });
 
-  backPeople.map((id) => {
+  backPeople.map((user) => {
+    console.log(maxSeat, backPeople.length, prohibitFrontSeatLength);
     const seats = arrangeSeat(
-      maxSeat - backPeople.length + 1,
+      frontPeople.length + randomPeople.length + 1,
       maxSeat,
       arrangedSeat,
       prohibitSeat,
-      id
+      user.id,
+      user.name
     );
     prohibitSeat = seats.prohibitSeat;
     arrangedSeat = seats.arrangedSeat;
   });
 
-  randomPeople.map((id) => {
+  randomPeople.map((user) => {
     const seats = arrangeSeat(
-      frontPeople.length + prohibitFrontSeatLength,
-      maxSeat - backPeople.length,
+      frontPeople.length + prohibitFrontSeatLength + 1,
+      frontPeople.length + randomPeople.length,
       arrangedSeat,
       prohibitSeat,
-      id
+      user.id,
+      user.name
     );
     prohibitSeat = seats.prohibitSeat;
     arrangedSeat = seats.arrangedSeat;
@@ -113,13 +120,16 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
  * @param {Number} userId : 배정될 유저 ID
  */
 
-function arrangeSeat(start, end, arrangedSeat, prohibitSeat, userId) {
+function arrangeSeat(start, end, arrangedSeat, prohibitSeat, userId, userName) {
   let randomSeat = Math.floor(Math.random() * (end - start + 1)) + start;
   while (prohibitSeat.includes(randomSeat)) {
     randomSeat = Math.floor(Math.random() * (end - start + 1)) + start;
   }
   prohibitSeat = [...prohibitSeat, randomSeat];
-  arrangedSeat = [...arrangedSeat, { userId: userId, seatNumber: randomSeat }];
+  arrangedSeat = [
+    ...arrangedSeat,
+    { userId: userId, userName: userName, seatNumber: randomSeat },
+  ];
 
   return { prohibitSeat, arrangedSeat };
 }
