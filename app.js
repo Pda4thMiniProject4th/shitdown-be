@@ -51,9 +51,9 @@ app.use(
     secret: process.env.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: true,
-    store: new MemoryStore({ checkPeriod: 1000 * 60 * 10 }),
+    // store: new MemoryStore({ checkPeriod: 1000 * 60 * 10 }),
     cookie: {
-      httpOnly: false,
+      httpOnly: true,
       secure: false,
       maxAge: 1000 * 60 * 10,
     },

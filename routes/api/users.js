@@ -1,3 +1,4 @@
+const axios = require("axios");
 var express = require("express");
 const User = require("../../models/Users");
 
@@ -31,7 +32,9 @@ router.post("/check", async (req, res) => {
   const { data } = req.body;
   const name = data[0];
   const order = data[1];
-  const token = req.session.token;
+
+  const token = req.session.kakao;
+  console.log("token 입니다:", token.data);
 
   //사용자가 존재하면 true로 반환한 후 jwt 토큰 발급 api로
   //존재하지 않으면 false를 반환한 후 로그아웃 페이지로
@@ -39,26 +42,39 @@ router.post("/check", async (req, res) => {
 
   //이름과 기수가 일치하는 user 찾기
   const person = await User.findOne({ name: name, orders: order });
+  console.log("일치하는 사람은?", person);
 
   //일치하는 사람이 있다면
   if (person) {
+    let userInfo = {};
     result = true;
+
     //유저 정보 가져오기
-    const userResponse = await axios.get("https://kapi.kakao.com/v2/user/me", {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    });
+    try {
+      const response = await axios
+        .post("http://localhost:3000/auth/infoget", {
+          token: token.data,
+        })
+        .then((response) => {
+          console.log("유저정보가져오기 성공!");
+          userInfo = response.data.userInfo;
+          console.log(userInfo);
+        })
+        .catch((error) => {
+          console.error("유저 정보 가져오기 실패");
+        });
+    } catch (error) {
+      return res.status(500).send("Error fetching data"); // 응답을 보내고 함수 종료
+    }
 
-    const userInfo = userResponse.data;
+    person.name = name;
+    person.nickname = userInfo.properties.nickname;
+    person.id = userInfo.id;
+    person.profile = userInfo.properties.profile_image;
+    person.token = token.data;
 
-    User.name = name;
-    User.nickname = userInfo.properties.nickname;
-    User.id = userInfo.id;
-    User.profile = userInfo.properties.profile_image;
-    User.token = token;
-    //User.access_token = object로 저장해야 하는지 논의 필요
-    //User.refresh_token =
+    //변경정보 저장
+    await person.save();
 
     res.json;
   } else {
@@ -66,11 +82,11 @@ router.post("/check", async (req, res) => {
   }
 
   //세션 삭제
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("세션 삭제 불가: ", err);
-    }
-  });
+  // req.session.destroy((err) => {
+  //   if (err) {
+  //     console.error("세션 삭제 불가: ", err);
+  //   }
+  // });
 
   res.json(result);
 });
