@@ -86,4 +86,50 @@ router.post("/infoget", async (req, res) => {
   }
 });
 
+router.post("/logout", async (req, res) => {
+  //jwt토큰 삭제, user db의 token과 id 삭제
+  //클라이언트로부터 전달 받은 유저 아이디
+  let { userId } = req.body;
+  console.log("logout api의 id: ", userId);
+
+  /*
+  if (!userId) {
+    //jwt토큰이라면
+    userId = jwt.verify(token, process.env.TOKEN_SECRET_KEY).user_id;
+  }
+  */
+
+  const person = await User.findOne({ id: userId });
+  let access_token = "";
+  console.log("지울 유저: ", person);
+  if (person) {
+    console.log("로그아웃을 위한 토큰: ", person.token.access_token);
+    access_token = person.token.access_token;
+  } else {
+    access_token = req.session.kakao.data.access_token;
+  }
+
+  try {
+    const logoutResponse = await axios({
+      method: "post",
+      url: "https://kapi.kakao.com/v1/user/logout",
+
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+  } catch {
+    console.log("로그아웃 실패");
+  }
+
+  if (person) {
+    person.id = userId * 20;
+    person.profile = "";
+    person.token = {};
+    await person.save();
+  }
+
+  res.json({ result: true });
+});
+
 module.exports = router;

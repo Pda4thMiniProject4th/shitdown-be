@@ -19,10 +19,9 @@ var usersRouter = require("./routes/api/users");
 var seatsRouter = require("./routes/api/seats");
 var noticeRouter = require("./routes/api/notice");
 var mypageRouter = require("./routes/api/mypage");
+var authRouter = require("./routes/auth");
 var creatRouter = require("./routes/api/creatToken");
 var verifyRouter = require("./routes/api/verifyToken");
-//인증
-var authRouter = require("./routes/auth");
 
 dotenv.config();
 
