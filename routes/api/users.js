@@ -112,4 +112,16 @@ router.get("/:orders", async (req, res) => {
   }
 });
 
+//메인페이지에서 id로 orders 를 조회
+router.get("/mainpage/:id", async (req, res) => {
+  try {
+    const idValue = req.params.id;
+    const orders = await User.findOne({ id: idValue }, "orders -_id");
+    res.json(orders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching orders");
+  }
+});
+
 module.exports = router;
