@@ -19,6 +19,8 @@ var usersRouter = require("./routes/api/users");
 var seatsRouter = require("./routes/api/seats");
 var noticeRouter = require("./routes/api/notice");
 var mypageRouter = require("./routes/api/mypage");
+var creatRouter = require("./routes/api/creatToken");
+var verifyRouter = require("./routes/api/verifyToken");
 //인증
 var authRouter = require("./routes/auth");
 
@@ -67,6 +69,8 @@ app.use("/seats", seatsRouter);
 app.use("/notice", noticeRouter);
 app.use("/mypage", mypageRouter);
 app.use("/auth", authRouter);
+app.use("/creattoken", creatRouter);
+app.use("/verifytoken", verifyRouter);
 
 // catch 404 and forward to error handler
 
