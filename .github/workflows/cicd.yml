@@ -25,12 +25,17 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+      
       - name: Install dependencies
         run: npm ci
 
       - name: Create .env file
         run: |
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+          echo "KAKAO_SECRET=${{ secrets.KAKAO_SECRET }}" >> .env
+          echo "KAKAO_REDIRECTION_URI=${{ secrets.KAKAO_REDIRECTION_URI }}" >> .env
+          echo "SESSION_SECRET_KEY=${{ secrets.SESSION_SECRET_KEY }}" >> .env
 
       # Build step removed since there is no build script
 
@@ -61,5 +66,6 @@ jobs:
             # Install project dependencies
             npm install --production
             # Restart or start the application with pm2
-            cd bin
-            pm2 restart all || pm2 start www
+            pm2 stop all || true
+            pm2 delete all || true
+            pm2 restart all || pm2 start bin/www
