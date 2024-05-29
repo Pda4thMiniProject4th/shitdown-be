@@ -69,14 +69,14 @@ router.post("/check", async (req, res) => {
 
     person.name = name;
     person.nickname = userInfo.properties.nickname;
-    //person.id = userInfo.id;
+    person.id = userInfo.id;
     person.profile = userInfo.properties.profile_image;
     person.token = token.data;
 
     //변경정보 저장
     await person.save();
     console.log(result);
-    res.json({ result: result, userId: person.id });
+    res.json({ result: result, userId: person.id, userAdmin: person.is_admin });
   } else {
     console.log("매칭되는 유저가 없음");
     res.json({ result: false });
