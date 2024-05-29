@@ -50,8 +50,9 @@ router.post("/kakao/callback", async (req, res) => {
 
     //세션에 데이터 저장
     req.session.kakao = {
-      //nickname: userResponse.data.properties.nickname,
-      token: data,
+      //nickname: userResponsdxe.data.properties.nickname,
+      //token: data,
+      data,
     };
 
     res.json({ nickname });
@@ -59,6 +60,32 @@ router.post("/kakao/callback", async (req, res) => {
     // console.log("Error", error.response?.data || error.message);
     console.log(error);
     res.status(400).json({ message: "Authenticaiton failed", error });
+  }
+});
+
+router.post("/infoget", async (req, res) => {
+  console.log("유저 정보를 불러오기!");
+  //클라이언트로 부터 전달 받은 토큰
+  const token = req.body.token;
+  console.log("넘어간 토큰", token);
+
+  //액세스 토큰을 받아옴.
+  const access_token = token.access_token;
+  console.log("액세스 토큰은 ", access_token);
+
+  //유저 정보 요청
+  try {
+    const userResponse = await axios.get("https://kapi.kakao.com/v2/user/me", {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+
+    const userInfo = userResponse.data;
+    console.log("유저 정보 가져옴: ", userInfo);
+    res.json({ userInfo });
+  } catch {
+    res.status(400).send("Error fetching user infromation");
   }
 });
 
