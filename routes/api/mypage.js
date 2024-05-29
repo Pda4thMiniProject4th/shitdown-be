@@ -5,6 +5,7 @@ const router = express.Router();
 
 //mypage에서 id 필드 값으로 user의 profile, name, seat_option조회
 router.get("/:id", async (req, res) => {
+  console.log(req);
   //const idValue = req.params.id;
   try {
     const idValue = req.params.id;

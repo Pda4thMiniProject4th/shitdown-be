@@ -148,6 +148,7 @@ router.get("/:orders", async (req, res) => {
     }
     res.json(seatToUserId);
   } catch (err) {
+    console.log(err);
     //   res.json(seatToUserId);
     //   if (user) {
     //     seatToUserName[userSeat.seatNumber] = user.name;

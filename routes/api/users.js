@@ -69,16 +69,17 @@ router.post("/check", async (req, res) => {
 
     person.name = name;
     person.nickname = userInfo.properties.nickname;
-    person.id = userInfo.id;
+    //person.id = userInfo.id;
     person.profile = userInfo.properties.profile_image;
     person.token = token.data;
 
     //변경정보 저장
     await person.save();
-
-    res.json;
+    console.log(result);
+    res.json({ result: result, userId: person.id });
   } else {
     console.log("매칭되는 유저가 없음");
+    res.json({ result: false });
   }
 
   //세션 삭제
@@ -87,8 +88,6 @@ router.post("/check", async (req, res) => {
   //     console.error("세션 삭제 불가: ", err);
   //   }
   // });
-
-  res.json(result);
 });
 
 // orders 를 기준으로 user들 조회하고 seat_option(-1,1)의 값에 따른 갯수 get
