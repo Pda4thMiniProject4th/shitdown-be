@@ -36,6 +36,7 @@ jobs:
           echo "KAKAO_SECRET=${{ secrets.KAKAO_SECRET }}" >> .env
           echo "KAKAO_REDIRECTION_URI=${{ secrets.KAKAO_REDIRECTION_URI }}" >> .env
           echo "SESSION_SECRET_KEY=${{ secrets.SESSION_SECRET_KEY }}" >> .env
+          echo "TOKEN_SECRET_KEY=${{ secrets.TOKEN_SECRET_KEY }}" >> .env
 
       # Build step removed since there is no build script
 
