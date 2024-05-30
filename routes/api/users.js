@@ -75,6 +75,14 @@ router.post("/check", async (req, res) => {
     person.profile = userInfo.properties.profile_image;
     person.token = token.data;
 
+    if (person.orders === 0) {
+      if (person.is_admin) {
+        result = true;
+      } else {
+        result = false;
+      }
+    }
+
     //변경정보 저장
     try {
       await person.save();
