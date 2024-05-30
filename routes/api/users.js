@@ -33,8 +33,7 @@ router.post("/check", async (req, res) => {
   const name = data[0];
   const order = data[1];
 
-  const token = req.session.kakao;
-  console.log("token 입니다:", token.data);
+  let token = req.session.kakao;
 
   //사용자가 존재하면 true로 반환한 후 jwt 토큰 발급 api로
   //존재하지 않으면 false를 반환한 후 로그아웃 페이지로
@@ -48,6 +47,9 @@ router.post("/check", async (req, res) => {
   if (person) {
     let userInfo = {};
     result = true;
+    if (!token) {
+      token = person.token;
+    }
 
     //유저 정보 가져오기
     try {
