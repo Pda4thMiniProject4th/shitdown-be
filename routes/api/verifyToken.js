@@ -11,6 +11,8 @@ router.post("/", async (req, res, next) => {
   const token = req.body.token;
   let result = false;
   let id = -10;
+  let name = "";
+  let order = 0;
   console.log("유효성 검사를 위해 넘겨받은 token: ", token);
 
   if (token) {
@@ -25,12 +27,14 @@ router.post("/", async (req, res, next) => {
     //일치하는 사람이 있다면
     if (person) {
       result = true;
+      name = person.name;
+      order = person.orders;
     }
   }
 
   console.log("유효성 결과: ", result);
   console.log("복호화된 아이디: ", id);
-  res.json({ result: result, userId: id });
+  res.json({ result: result, userId: id, userName: name, userOrder: order });
 });
 
 module.exports = router;

@@ -67,7 +67,7 @@ router.post("/infoget", async (req, res) => {
   console.log("넘어간 토큰", token);
 
   //액세스 토큰을 받아옴.
-  const access_token = token.access_token;
+  let access_token = token.access_token;
   console.log("액세스 토큰은 ", access_token);
 
   //유저 정보 요청
@@ -123,10 +123,10 @@ router.post("/logout", async (req, res) => {
   }
 
   if (person) {
-    person.id = userId * 20;
-    person.profile = "";
-    person.token = {};
-    await person.save();
+    //person.id = userId * 20;
+    //person.profile = "";
+    //person.token = {};
+    //await person.save();
   }
 
   res.json({ result: true });
