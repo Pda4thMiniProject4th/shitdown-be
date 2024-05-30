@@ -153,7 +153,7 @@ router.get("/orders/:orders", async (req, res) => {
   }
 });
 
-// userId 값에 따른 user 정보 업데이트
+// 승인/거절 API
 router.put("/", async (req, res) => {
   try {
     if (req.body.isChecked) {
@@ -169,6 +169,16 @@ router.put("/", async (req, res) => {
       );
       res.status(200).json({ code: 201, message: "거절 완료" });
     }
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("업데이트에 실패했습니다");
+  }
+});
+
+router.put("/update", async (req, res) => {
+  try {
+    await User.updateOne({ id: req.body.user.id }, { $set: req.body.user });
+    res.status(200).json({ code: 200, message: "업데이트 완료" });
   } catch (error) {
     console.log(error);
     res.status(400).send("업데이트에 실패했습니다");
