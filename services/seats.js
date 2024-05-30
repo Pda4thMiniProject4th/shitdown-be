@@ -46,9 +46,8 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
   let arrangedSeat = [];
   //유저 수보다 작거나 같은 자리가 금지되어 있다면 그 수만큼 users.length에 더해주기
   let userLength = users.length;
-
   users.map((user) => {
-    if (user.seat_option > 0) {
+    if (user.seat_option == 1) {
       frontPeople = [...frontPeople, user];
       return;
     }
@@ -63,10 +62,26 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
   ).length;
   maxSeat = userLength + prohibitSeat.length;
 
+  console.log("dfdsfs");
+  // todo 알고리즘 수정
+
+  //이분탐색으로 front 선택 한 사람이 앉을 수 있는 마지막 자리 구하고
+  // front : 1 ~ FrontEnd
+  // random : FrontEnd + 1 ~ backStart - 1
+  // back : backStart ~ maxSeat
+  let frontEnd = binarySearch(
+    1,
+    maxSeat,
+    frontPeople,
+    prohibitSeat,
+    false,
+    maxSeat
+  );
+  console.log("frontEnd", frontEnd);
   frontPeople.map((user) => {
     const seats = arrangeSeat(
       1,
-      frontPeople.length + prohibitFrontSeatLength,
+      frontEnd,
       arrangedSeat,
       prohibitSeat,
       user.id,
@@ -76,10 +91,21 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
     arrangedSeat = seats.arrangedSeat;
   });
 
+  let backStart = binarySearch(
+    frontEnd,
+    maxSeat,
+    frontPeople,
+    prohibitSeat,
+    false,
+    maxSeat
+  );
+
+  console.log("backstart", backStart);
+
+  console.log("backPeople", backPeople.length);
   backPeople.map((user) => {
-    console.log(maxSeat, backPeople.length, prohibitFrontSeatLength);
     const seats = arrangeSeat(
-      frontPeople.length + randomPeople.length + 1,
+      backStart,
       maxSeat,
       arrangedSeat,
       prohibitSeat,
@@ -90,10 +116,13 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
     arrangedSeat = seats.arrangedSeat;
   });
 
+  console.log("maxSeat", maxSeat);
+  console.log("prohibitSeat", prohibitSeat);
+  console.log("randomPeople", randomPeople.length);
   randomPeople.map((user) => {
     const seats = arrangeSeat(
-      frontPeople.length + prohibitFrontSeatLength + 1,
-      frontPeople.length + randomPeople.length,
+      1,
+      maxSeat,
       arrangedSeat,
       prohibitSeat,
       user.id,
@@ -104,6 +133,37 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
   });
 
   return arrangedSeat;
+}
+
+function binarySearch(start, end, people, prohibitSeat, isBack, maxSeat) {
+  console.log(people);
+  while (start < end) {
+    let mid = parseInt((start + end) / 2);
+    let arr = [];
+    // mid까지 금지된 좌석이 얼마나 있는지?
+    if (!isBack) {
+      arr = prohibitSeat.filter((seat) => seat <= mid);
+      if (mid - arr.length > people.length) {
+        end = mid;
+        continue;
+      } else if (mid - arr.length < people.length) {
+        start = mid + 1;
+        continue;
+      }
+    } else {
+      arr = prohibitSeat.filter((seat) => seat > mid);
+      if (arr.length + people.length > maxSeat) {
+        start = mid + 1;
+        continue;
+      } else if (arr.length + people.length < maxSeat) {
+        end = mid;
+        continue;
+      }
+    }
+    console.log("mid", mid);
+    return mid;
+  }
+  return end;
 }
 
 /**

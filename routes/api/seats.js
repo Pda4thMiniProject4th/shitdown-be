@@ -147,24 +147,8 @@ router.get("/:orders", async (req, res) => {
       }
     }
     res.json(seatToUserId);
-  } catch (err) {
-    console.log(err);
-    //   res.json(seatToUserId);
-    //   if (user) {
-    //     seatToUserName[userSeat.seatNumber] = user.name;
-    //   } else {
-    //     seatToUserName[userSeat.seatNumber] = "Empty";
-    //   }
-    //   res.json(seatToUserName);
-    // } catch (error) {
-    //   console.error(error);
-    //   res
-    //     .status(400)
-    //     .send(
-    //       "An error occurred while fetching user names based on seat numbers."
-    //     );
-    // }
-
+  } catch (error) {
+    console.error(error);
     res
       .status(400)
       .send(

@@ -74,9 +74,17 @@ router.post("/check", async (req, res) => {
     person.token = token.data;
 
     //변경정보 저장
-    await person.save();
-    console.log(result);
-    res.json({ result: result, userId: person.id, userAdmin: person.is_admin });
+    try {
+      await person.save();
+      console.log(result);
+      res.json({
+        result: result,
+        userId: person.id,
+        userAdmin: person.is_admin,
+      });
+    } catch (error) {
+      res.status(400).json("저장이 되지 않습니다.");
+    }
   } else {
     console.log("매칭되는 유저가 없음");
     res.json({ result: false });
@@ -121,6 +129,39 @@ router.get("/mainpage/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while fetching orders");
+  }
+});
+
+// 기수에 따른 USER 정보 가져오기
+router.get("/orders/:orders", async (req, res) => {
+  try {
+    const users = await User.find({ orders: req.params.orders });
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("값을 가져올 수 없습니다.");
+  }
+});
+
+// userId 값에 따른 user 정보 업데이트
+router.put("/", async (req, res) => {
+  try {
+    if (req.body.isChecked) {
+      await User.updateOne(
+        { id: req.body.id },
+        { $set: { reason: "", seat_option: -1 } }
+      );
+      res.status(200).json({ code: 200, message: "승인 완료" });
+    } else {
+      await User.updateOne(
+        { id: req.body.id },
+        { $set: { reason: "", seat_option: 0 } }
+      );
+      res.status(200).json({ code: 201, message: "거절 완료" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("업데이트에 실패했습니다");
   }
 });
 
