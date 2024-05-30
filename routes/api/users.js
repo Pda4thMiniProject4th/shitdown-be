@@ -129,6 +129,8 @@ router.get("/mainpage/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while fetching orders");
+  }
+});
 
 // 기수에 따른 USER 정보 가져오기
 router.get("/orders/:orders", async (req, res) => {
