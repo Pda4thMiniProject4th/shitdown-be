@@ -63,6 +63,8 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
   maxSeat = userLength + prohibitSeat.length;
 
   console.log("dfdsfs");
+
+  console.log("maxSeat", maxSeat);
   // todo 알고리즘 수정
 
   //이분탐색으로 front 선택 한 사람이 앉을 수 있는 마지막 자리 구하고
@@ -77,6 +79,7 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
     false,
     maxSeat
   );
+  console.log("frontEndPeople", frontPeople.length);
   console.log("frontEnd", frontEnd);
   frontPeople.map((user) => {
     const seats = arrangeSeat(
@@ -94,15 +97,16 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
   let backStart = binarySearch(
     frontEnd,
     maxSeat,
-    frontPeople,
+    backPeople,
     prohibitSeat,
-    false,
+    true,
     maxSeat
   );
 
   console.log("backstart", backStart);
 
   console.log("backPeople", backPeople.length);
+  console.log("randomPeople", randomPeople.length);
   backPeople.map((user) => {
     const seats = arrangeSeat(
       backStart,
@@ -116,7 +120,6 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
     arrangedSeat = seats.arrangedSeat;
   });
 
-  console.log("maxSeat", maxSeat);
   console.log("prohibitSeat", prohibitSeat);
   console.log("randomPeople", randomPeople.length);
   randomPeople.map((user) => {
@@ -136,10 +139,10 @@ function setRandomSeats(maxSeat, prohibitSeat, users) {
 }
 
 function binarySearch(start, end, people, prohibitSeat, isBack, maxSeat) {
-  console.log(people);
   while (start < end) {
     let mid = parseInt((start + end) / 2);
     let arr = [];
+    console.log(mid);
     // mid까지 금지된 좌석이 얼마나 있는지?
     if (!isBack) {
       arr = prohibitSeat.filter((seat) => seat <= mid);
@@ -151,7 +154,8 @@ function binarySearch(start, end, people, prohibitSeat, isBack, maxSeat) {
         continue;
       }
     } else {
-      arr = prohibitSeat.filter((seat) => seat > mid);
+      arr = prohibitSeat.filter((seat) => seat >= mid);
+      console.log("arr", arr.length);
       if (arr.length + people.length > maxSeat) {
         start = mid + 1;
         continue;
