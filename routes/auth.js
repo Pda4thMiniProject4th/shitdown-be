@@ -5,6 +5,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 //Users에 닉네임과 id, 프로필 저장을 위한 추가
 const User = require("../models/Users");
+require("dotenv").config();
 const qs = require("qs");
 const { json } = require("body-parser");
 
@@ -92,13 +93,6 @@ router.post("/logout", async (req, res) => {
   let { userId } = req.body;
   console.log("logout api의 id: ", userId);
 
-  /*
-  if (!userId) {
-    //jwt토큰이라면
-    userId = jwt.verify(token, process.env.TOKEN_SECRET_KEY).user_id;
-  }
-  */
-
   const person = await User.findOne({ id: userId });
   let access_token = "";
   console.log("지울 유저: ", person);
@@ -109,27 +103,9 @@ router.post("/logout", async (req, res) => {
     access_token = req.session.kakao.data.access_token;
   }
 
-  try {
-    const logoutResponse = await axios({
-      method: "post",
-      url: "https://kapi.kakao.com/v1/user/logout",
-
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    });
-  } catch {
-    console.log("로그아웃 실패");
-  }
-
-  if (person) {
-    //person.id = userId * 20;
-    //person.profile = "";
-    //person.token = {};
-    //await person.save();
-  }
-
-  res.json({ result: true });
+  res.json({
+    logouturl: `https://kauth.kakao.com/oauth/logout?client_id=${process.env.KAKAO_CLIENT_ID}&logout_redirect_uri=${process.env.LOGOUT_URI}`,
+  });
 });
 
 module.exports = router;
